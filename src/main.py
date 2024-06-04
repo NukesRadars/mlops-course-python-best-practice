@@ -5,28 +5,28 @@ from torchvision import transforms, models
 from torchvision.models.resnet import ResNet18_Weights
 
 
-class imageData:
-    def __init__(self, DIR):
-        self.D = DIR
+class ImageData:
+    def __init__(self, dir):
+        self.dir = dir
 
-    def LoadImages(self):
+    def load_images(self):
         imgs = []
-        for F in os.listdir(self.D):
-            if F.endswith(".jpg") or F.endswith(".png"):
-                imgs.append(Image.open(os.path.join(self.D, F)))
+        for filename in os.listdir(self.dir):
+            if filename.endswith(".jpg") or filename.endswith(".png"):
+                imgs.append(Image.open(os.path.join(self.dir, filename)))
         return imgs
 
 
-class imgProcess:
+class ImgProcess:
     def __init__(self, size):
-        self.s = size
+        self.size = size
 
-    def resize_and_GRAY(self, img_list):
+    def resize_and_gray(self, img_list):
         p_images = []
         for img in img_list:
             t = transforms.Compose(
                 [
-                    transforms.Resize((self.s, self.s)),
+                    transforms.Resize((self.size, self.size)),
                     transforms.Grayscale(num_output_channels=3),
                     transforms.ToTensor(),
                     transforms.Normalize(
@@ -38,12 +38,12 @@ class imgProcess:
         return p_images
 
 
-class predictor:
+class Predictor:
     def __init__(self):
         self.mdl = models.resnet18(weights=ResNet18_Weights.DEFAULT)
         self.mdl.eval()
 
-    def Predict_Img(self, processed_images):
+    def predict_img(self, processed_images):
         results = []
         for img_tensor in processed_images:
             pred = self.mdl(img_tensor.unsqueeze(0))
@@ -52,12 +52,12 @@ class predictor:
 
 
 if __name__ == "__main__":
-    loader = imageData("images/")
-    images = loader.LoadImages()
+    loader = ImageData("images/")
+    images = loader.load_images()
 
-    processor = imgProcess(256)
-    processed_images = processor.resize_and_GRAY(images)
+    processor = ImgProcess(256)
+    processed_images = processor.resize_and_gray(images)
 
-    pred = predictor()
-    results = pred.Predict_Img(processed_images)
+    pred = Predictor()
+    results = pred.predict_img(processed_images)
     print(results)
