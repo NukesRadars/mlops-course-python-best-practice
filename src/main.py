@@ -1,15 +1,15 @@
 import os
 from PIL import Image
 import torch
-from torchvision import transforms, models
-from torchvision.models.resnet import ResNet18_Weights
+from torchvision import transforms, models  # type: ignore
+from torchvision.models.resnet import ResNet18_Weights  # type: ignore
 
 
 class ImageData:
-    def __init__(self, dir):
+    def __init__(self, dir: str) -> None:
         self.dir = dir
 
-    def load_images(self):
+    def load_images(self) -> list[Image.Image]:
         imgs = []
         for filename in os.listdir(self.dir):
             if filename.endswith(".jpg") or filename.endswith(".png"):
@@ -18,10 +18,10 @@ class ImageData:
 
 
 class ImgProcess:
-    def __init__(self, size):
+    def __init__(self, size: int) -> None:
         self.size = size
 
-    def resize_and_gray(self, img_list):
+    def resize_and_gray(self, img_list: list) -> list[torch.Tensor]:
         p_images = []
         for img in img_list:
             t = transforms.Compose(
@@ -39,15 +39,15 @@ class ImgProcess:
 
 
 class Predictor:
-    def __init__(self):
+    def __init__(self) -> None:
         self.mdl = models.resnet18(weights=ResNet18_Weights.DEFAULT)
         self.mdl.eval()
 
-    def predict_img(self, processed_images):
+    def predict_img(self, processed_images: list[torch.Tensor]) -> list[int]:
         results = []
         for img_tensor in processed_images:
             pred = self.mdl(img_tensor.unsqueeze(0))
-            results.append(torch.argmax(pred, dim=1).item())
+            results.append(int(torch.argmax(pred, dim=1).item()))
         return results
 
 
